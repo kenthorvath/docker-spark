@@ -18,7 +18,7 @@ ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update \
  && apt-get install -y curl unzip \
-    python3 python3-setuptools \
+    python3 python3-setuptools vim less \
  && ln -s /usr/bin/python3 /usr/bin/python \
  && easy_install3 pip py4j \
  && apt-get clean \
@@ -55,6 +55,7 @@ RUN curl -sL --retry 3 \
   | tar -x -C /usr/ \
  && rm -rf $HADOOP_HOME/share/doc \
  && chown -R root:root $HADOOP_HOME
+COPY conf/hadoop/core-site.xml /usr/hadoop-2.7.3/etc/hadoop
 
 # SPARK
 ENV SPARK_VERSION 2.1.0
@@ -71,3 +72,9 @@ RUN curl -sL --retry 3 \
 
 WORKDIR $SPARK_HOME
 CMD ["bin/spark-class", "org.apache.spark.deploy.master.Master"]
+
+COPY bootstrap.sh /etc/bootstrap.sh
+RUN chown root.root /etc/bootstrap.sh
+RUN chmod 700 /etc/bootstrap.sh
+
+ENTRYPOINT ["/etc/bootstrap.sh"]
